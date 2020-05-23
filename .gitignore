@@ -1,5 +1,5 @@
 # .idea 설정 파일
-.idea
+.idea/
 
 # 클래스 파일들
-/target
+/target/
