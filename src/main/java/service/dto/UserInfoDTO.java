@@ -1,35 +1,32 @@
 package service.dto;
 
 public class UserInfoDTO {
-    private String ipAdr;
-    private int port;
+    private String type;
     private String id;
     private String name;
+    private String pw;
+    private int status;
 
     public UserInfoDTO() {
     }
 
-    public UserInfoDTO(String ipAdr, int port, String id, String name) {
-        this.ipAdr = ipAdr;
-        this.port = port;
+    public UserInfoDTO(String id, String pw) {
+        this.id = id;
+        this.pw = pw;
+    }
+
+    public UserInfoDTO(String id, String name, String pw) {
         this.id = id;
         this.name = name;
+        this.pw = pw;
     }
 
-    public String getIpAdr() {
-        return ipAdr;
+    public String getType() {
+        return type;
     }
 
-    public void setIpAdr(String ipAdr) {
-        this.ipAdr = ipAdr;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getId() {
@@ -48,13 +45,30 @@ public class UserInfoDTO {
         this.name = name;
     }
 
+    public String getPw() {
+        return pw;
+    }
+
+    public void setPw(String pw) {
+        this.pw = pw;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "UserInfoDTO{" +
-                "ipAdr='" + ipAdr + '\'' +
-                ", port=" + port +
+                "type='" + type + '\'' +
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
+                ", pw='" + pw + '\'' +
+                ", status=" + status +
                 '}';
     }
 }
