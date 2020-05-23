@@ -1,7 +1,8 @@
-package service.bl;
+package main.java.service.bl;
 
 import com.google.gson.Gson;
 import service.dao.MultiChatDAO;
+import main.java.service.bl.ServerReceiverThread;
 import service.dto.UserInfoDTO;
 import util.MetaDataLoader;
 
