@@ -1,6 +1,7 @@
-package service.bl;
+package main.java.service.bl;
 
 import com.google.gson.Gson;
+import main.java.service.bl.ServerReceiverThread;
 import service.dto.UserInfoDTO;
 
 import java.io.*;

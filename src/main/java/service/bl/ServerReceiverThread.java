@@ -1,5 +1,4 @@
-package service.bl;
-
+package main.java.service.bl;
 
 import com.google.gson.Gson;
 import service.dto.Message;
