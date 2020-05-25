@@ -1,8 +1,9 @@
-package main.java.service.bl;
+package service.bl;
 
 import com.google.gson.Gson;
 import service.dao.MultiChatDAO;
-import main.java.service.bl.ServerReceiverThread;
+import service.bl.ServerReceiverThread;
+import service.dto.Message;
 import service.dto.UserInfoDTO;
 import util.MetaDataLoader;
 
@@ -118,19 +119,21 @@ public class MultiChatServerService {
         if(sendUserInfo.getStatus() == GOOD_DENY) {
             sendReply(sendUserInfo,bw);
             messageHandling(user.getId(), "로그인 미승인!");
-        }
 
-        //방문할 수 있는지 판단.
-        if(isVisit(sendUserInfo.getId())) {
-            sendReply(sendUserInfo,bw);
-            messageHandling(user.getId(),"로그인 승인!");
-            rtn = sendUserInfo;
         }
-        //이미 같은 ID로 방문자가 있을 때
         else {
-            sendUserInfo.setStatus(GOOD_DENY);
-            sendReply(sendUserInfo,bw);
-            errorHandling(sendUserInfo.getId(),"로그인 미승인!");
+            //방문할 수 있는지 판단.
+            if (isVisit(sendUserInfo.getId())) {
+                sendReply(sendUserInfo, bw);
+                messageHandling(user.getId(), "로그인 승인!");
+                rtn = sendUserInfo;
+            }
+            //이미 같은 ID로 방문자가 있을 때
+            else {
+                sendUserInfo.setStatus(GOOD_DENY);
+                sendReply(sendUserInfo, bw);
+                errorHandling(sendUserInfo.getId(), "로그인 미승인!");
+            }
         }
         return rtn;
     }
@@ -145,16 +148,27 @@ public class MultiChatServerService {
 
         //시스템 출력
         messageHandling(user.getName(),"입장!");
+        List<UserInfoDTO> visitorList = new ArrayList<UserInfoDTO>();
         StringBuilder visitors = new StringBuilder("[");
-        for(String key : clientMap.keySet()) visitors.append(clientMap.get(key).getUserInfo().getName()+",");
+        for(String key : clientMap.keySet()) {
+            UserInfoDTO temp = clientMap.get(key).getUserInfo();
+            visitors.append(temp.getName()+",");
+            visitorList.add(temp);
+        }
         visitors.replace(visitors.length()-1,visitors.length(),"]");
         messageHandling("현재 접속자는 " +visitors.toString());
 
+        Message msg = new Message();
+        msg.setType("system-visit");
+        msg.setStatus("200");
+        msg.setSender("");
+        msg.setMessage("현재 접속자는 " + visitors.toString());
+        msg.setVisitor(visitorList);
         //접속 내용 전파
         for (Map.Entry<String, ServerReceiverThread> entry : clientMap.entrySet()) {
             try {
                 entry.getValue().writeInfo("["+user.getName()+"]"+" 님이 입장하셨습니다.");
-                entry.getValue().writeInfo("현재 접속자는 " +visitors.toString());
+                entry.getValue().writeInfo(msg);
             } catch (Exception e) {
                 entry.getValue().close();
                 clientMap.remove(entry.getKey());

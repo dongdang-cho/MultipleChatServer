@@ -1,6 +1,7 @@
-package main.java.view;
+package view;
 
-import main.java.service.bl.MultiChatServerService;
+
+import service.bl.MultiChatServerService;
 
 public class MainApp {
     public static void main(String[] args) {

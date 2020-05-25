@@ -8,15 +8,20 @@ public class Message {
     private String sender;
     private String message;
     private List<String> receiver;
+    private List<UserInfoDTO> visitor;
+    private String exit;
 
-    public Message() {}
+    public Message() {
+    }
 
-    public Message(String type, String status, String sender, String message, List<String> receiver) {
+    public Message(String type, String status, String sender, String message, List<String> receiver, List<UserInfoDTO> visitor, String exit) {
         this.type = type;
         this.status = status;
         this.sender = sender;
         this.message = message;
         this.receiver = receiver;
+        this.visitor = visitor;
+        this.exit = exit;
     }
 
     public String getType() {
@@ -59,6 +64,22 @@ public class Message {
         this.receiver = receiver;
     }
 
+    public List<UserInfoDTO> getVisitor() {
+        return visitor;
+    }
+
+    public void setVisitor(List<UserInfoDTO> visitor) {
+        this.visitor = visitor;
+    }
+
+    public String getExit() {
+        return exit;
+    }
+
+    public void setExit(String exit) {
+        this.exit = exit;
+    }
+
     @Override
     public String toString() {
         return "Message{" +
@@ -67,6 +88,8 @@ public class Message {
                 ", sender='" + sender + '\'' +
                 ", message='" + message + '\'' +
                 ", receiver=" + receiver +
+                ", visitor=" + visitor +
+                ", exit='" + exit + '\'' +
                 '}';
     }
 }

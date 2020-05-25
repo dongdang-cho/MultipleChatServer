@@ -1,4 +1,4 @@
-package main.java.service.bl;
+package service.bl;
 
 import com.google.gson.Gson;
 import service.dto.Message;
@@ -6,9 +6,7 @@ import service.dto.UserInfoDTO;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class ServerReceiverThread extends Thread{
     private Socket sock;
@@ -48,13 +46,19 @@ public class ServerReceiverThread extends Thread{
                     if(sock != null) {
                         close();
                         clientMap.remove(userInfo.getId());
-                        String m = "["+userInfo.getName()+"] 님이 퇴장하였습니다.";
+
+                        Message msg = new Message();
+                        msg.setType("system-exit");
+                        msg.setStatus("200");
+                        msg.setSender("");
+                        msg.setExit(userInfo.getId());
+                        msg.setMessage("["+userInfo.getName()+"] 님이 퇴장하였습니다.");
 
                         Iterator<Map.Entry<String, ServerReceiverThread>> iterator = clientMap.entrySet().iterator();
                         while(iterator.hasNext()) {
                             Map.Entry<String,ServerReceiverThread> entry = iterator.next();
                             try {
-                                entry.getValue().writeInfo(m);
+                                entry.getValue().writeInfo(msg);
                             } catch (Exception e) {
                                 //전송 오류 나는 소켓 정리
                                 entry.getValue().close();
@@ -64,8 +68,10 @@ public class ServerReceiverThread extends Thread{
                     }
                     break;
                 }
-
-                broadcast(message);
+                Message msg = new Gson().fromJson(message,Message.class);
+                System.out.println(msg.getType());
+                if(msg.getType().equals("broadcast")) broadcast(message);
+                else uniMulticast(msg.getReceiver(),message);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -88,6 +94,21 @@ public class ServerReceiverThread extends Thread{
                 entry.getValue().close();
                 clientMap.remove(entry.getKey());
             }
+        }
+    }
+
+    //unicast
+    public void uniMulticast(List<String> list, String message) {
+        HashSet<String> set = new HashSet<String>(list);
+        list = new ArrayList<String>(set);
+        System.out.println(list);
+        try {
+            for(String id : list) {
+                if(clientMap.get(id) != null)
+                    clientMap.get(id).write(message);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -119,6 +140,11 @@ public class ServerReceiverThread extends Thread{
         msg.setStatus("200");
         msg.setReceiver(null);
         msg.setMessage(message);
+        bw.write(new Gson().toJson(msg)+"\n");
+        bw.flush();
+    }
+    public void writeInfo(Message msg) throws IOException {
+        if(msg==null) return;
         bw.write(new Gson().toJson(msg)+"\n");
         bw.flush();
     }
