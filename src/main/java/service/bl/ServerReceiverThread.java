@@ -69,7 +69,6 @@ public class ServerReceiverThread extends Thread{
                     break;
                 }
                 Message msg = new Gson().fromJson(message,Message.class);
-                System.out.println(msg.getType());
                 if(msg.getType().equals("broadcast")) broadcast(message);
                 else uniMulticast(msg.getReceiver(),message);
             }
