@@ -1,5 +1,7 @@
 package util;
 
+import service.bl.MultiChatServerService;
+
 import java.sql.*;
 import java.util.Properties;
 

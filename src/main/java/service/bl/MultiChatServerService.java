@@ -24,57 +24,94 @@ public class MultiChatServerService {
     private final int GOOD_DENY = 202; //통신 양호-의미 부정
 
     private int port;
-
+    private int filePort;
     public MultiChatServerService() {
+
         clientMap = new HashMap<String, ServerReceiverThread>();
         multiChatDAO = new MultiChatDAO();
         this.port = MetaDataLoader.getPort();
+        this.filePort = MetaDataLoader.getFilePort();
     }
     /////////////////////////////////////////////////////////////////////
    /*
    구동할 서비스
     */
     public void service() {
+        MainServiceThread mainService = new MainServiceThread("메인서비스");
+
+        mainService.start();
+
         try {
-            ServerSocket servSock = new ServerSocket(port);
-            //Lan에서 사용 가능
-            //wan사용시 공유기에서 포트포워딩 설정할 것.
-            while(true) {
-                System.out.println("클라이언트의 접속을 기다리고 있습니다...");
-                Socket socket = servSock.accept(); //접속 대기 및 수락
+            mainService.join();
 
-                //입력 스트림 생성 및 입력
-                BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String temp = br.readLine();
-
-                //출력 스트림 생성
-                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-
-                //입력 데이터 객체화
-                UserInfoDTO user = readUserInfo(temp);
-
-                //로그인인지 회원가입인지 확인 및 처리
-                if(user.getType().equals("join")) {
-                    joinSerivce(user,bw);
-                    continue;
-                }else if(user.getType().equals("login")) {
-                    user = loginService(user,bw);
-                    if(user==null) continue;
-                    //로그인, 가입 요청이 아닐 때
-                }else {
-                    errorHandling("처리할 수 없는 type이 감지되어 처리하지 않습니다.");
-                    continue;
-                }
-
-                visitChat(socket,user);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
+    //////////////////////////////////////////////////////////////////
+    class MainServiceThread extends Thread {
+        public MainServiceThread(String name) {
+            super(name);
+        }
 
+        @Override
+        public void run() {
+            super.run();
+            this.service();
+        }
+        public void service() {
+            try {
+                //Lan에서 사용 가능
+                //wan사용시 공유기에서 포트포워딩 설정할 것.
+                ServerSocket servSock = new ServerSocket(port);
+                while(true) {
+                    System.out.println("클라이언트의 접속을 기다리고 있습니다...");
+                    Socket socket = servSock.accept(); //접속 대기 및 수락
+
+                    //입력 스트림 생성 및 입력
+                    BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    String temp = br.readLine();
+
+                    //출력 스트림 생성
+                    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
+                    //입력 데이터 객체화
+                    UserInfoDTO user = readUserInfo(temp);
+
+                    //로그인인지 회원가입인지 확인 및 처리
+                    if(user.getType().equals("join")) {
+                        joinSerivce(user,bw);
+                        continue;
+                    }else if(user.getType().equals("login")) {
+                        user = loginService(user,bw);
+                        if(user==null) continue;
+                        //로그인, 가입 요청이 아닐 때
+                    }else {
+                        errorHandling("처리할 수 없는 type이 감지되어 처리하지 않습니다.");
+                        continue;
+                    }
+                    visitChat(socket,user);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    class FileServiceThread extends Thread {
+        public FileServiceThread(String name) {
+            super(name);
+        }
+
+        @Override
+        public void run() {
+            super.run();
+            this.service();
+        }
+        public void service() {
+        }
+    }
     /////////////////////////////////////////////////////////////////////
     /*
         단일 서비스 메소드
